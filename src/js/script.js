@@ -80,7 +80,7 @@
 
         /*add element to menu*/
 
-        menuContainer.appenChild(thisProduct.element);
+        menuContainer.appendChild(thisProduct.element);
       }
     }
 
