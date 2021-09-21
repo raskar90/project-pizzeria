@@ -60,7 +60,10 @@
       thisProduct.data = data;
 
       thisProduct.renderInMenu();
+      thisProduct.getElements();
       thisProduct.initAccordion();
+      thisProduct.initOrderForm();
+      thisProduct.processOrder();
 
       console.log('new Product:', thisProduct);
     }
@@ -84,15 +87,26 @@
       menuContainer.appendChild(thisProduct.element);
     }
 
+    getElements(){
+      const thisProduct = this;
+    
+      thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      thisProduct.form = thisProduct.element.querySelector(select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
+      thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+    }
+
     initAccordion (){
       const thisProduct = this;
 
       /* find the clickable trigger (to element thas should react to clicking) */
-      const clickableTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      /*const clickableTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);*/
       //console.log('clickableTrigger:', clickableTrigger);
       
       /* START: add event listener to clickable trigger on event click */
-      clickableTrigger.addEventListener('click', function(event) {
+      /*clickableTrigger.addEventListener('click', function(event) {*/
+      thisProduct.accordionTrigger.addEventListener('click', function(event) {
 
         /* prevent default action for event */
         event.preventDefault();
@@ -113,7 +127,35 @@
         thisProduct.element.classList.toggle(classNames.menuProduct.wrapperActive);
       });
     }
-} 
+
+    initOrderForm(){
+      const thisProduct = this;
+    
+    }
+
+    processOrder(){
+      const thisProduct = this;
+  
+      const formData = utils.serializeFormToObject(thisProduct.form);
+      let price = thisProduct.data.price;
+  
+      for(let paramId in thisProduct.data.params) {
+        const param = thisProduct.data.params[paramId];
+  
+        for(let optionId in param.options){
+          const option = param.options[optionId];
+          const optionSelected = formData[paramId] && formData[paramId].includes(optionId);
+  
+          if (optionSelected){
+            if(!option.default == true){
+              price += option.price;
+            }
+            else if(option.default == true){
+              price -= option.price;
+            }
+          }
+        }
+      } 
 
   const app = {
     initMenu: function(){
@@ -143,4 +185,6 @@
   };
 
   app.init();
+}
+}
 }
