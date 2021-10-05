@@ -95,6 +95,7 @@
       thisProduct.formInputs = thisProduct.form.querySelectorAll(select.all.formInputs);
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }
 
     initAccordion (){
@@ -190,6 +191,23 @@
               // subtract option price from default price
 
               price -= option.price;
+            }
+          }
+          // find image with class: .paramId-optionId in thisProduct.imageWrapper
+          //const activeImage = thisProduct.imageWrapper.querySelector('.' + paramId + '-' + optionId);
+          const activeImage = thisProduct.imageWrapper.querySelector(`.${paramId}-${optionId}`);
+
+          // check if was found, if yes check optionId
+          if (activeImage) {
+
+            // If yes show the activeImage
+            if (formData[paramId] && formData[paramId].includes(optionId)) {
+
+              activeImage.classList.add(classNames.menuProduct.imageVisible);
+
+              //  if not hide the activeImage
+            } else {
+              activeImage.classList.remove(classNames.menuProduct.imageVisible);
             }
           }
         }
