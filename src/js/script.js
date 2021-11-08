@@ -76,6 +76,11 @@
     cart: {
       defaultDeliveryFee: 20,
     },
+    db: {
+      url: '//localhost:3131',
+      products: 'products',
+      orders: 'orders',
+    },
     // CODE ADDED END
   };
   
@@ -336,7 +341,45 @@
       thisWidget.linkIncrease.addEventListener('click', function (event) {
         event.preventDefault();
         thisWidget.setValue(thisWidget.value + 1);
+        
+      thisCart.dom.form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        thisCart.sendOrder();
+        });  
       });
+    }
+
+    sendOrder() {
+      const thisCart = this;
+  
+      // ENDPOINT ADRESS http://localhost:3131/orders
+      const url = settings.db.url + '/' + settings.db.orders;
+
+      const payload = {
+        address: thisCart.dom.address.value,
+        phone: thisCart.dom.phone.value,
+        totalPrice: thisCart.totalPrice,
+        subTotalPrice: thisCart.subTotalPrice,
+        totalNumber: thisCart.totalNumber,
+        deliveryFee: thisCart.deliveryFee,
+        //products: [],
+        products: thisCart.products.map(product => product.getData())
+      };
+  
+      for (let prod of thisCart.products) {
+        payload.products.push(prod.getData());
+      }
+       // wysyłka danych
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+
+    fetch(url, options);
+
     }
 
     announce() {
@@ -521,7 +564,7 @@
       const thisApp = this;
 
       for (let productData in thisApp.data.products) {
-        new Product(productData, thisApp.data.products[productData]);
+        new Product(thisApp.data.products[productData].id, thisApp.data.products[productData]);
       }
     },
     initData: function () {
@@ -538,8 +581,25 @@
 
     init: function () {
       const thisApp = this;
-      thisApp.initData();
-      thisApp.initMenu();
+      thisApp.data = {};
+      const url = settings.db.url + '/' + settings.db.products;
+      fetch (url) 
+        .then(function(rawResponse){
+          return rawResponse.json();
+        })
+        .then (function(parsedResponse){
+          console.log('parsedResponse', parsedResponse);
+
+          /*save parsed response as thisApp.data.products*/
+
+          thisApp.data.products = parsedResponse;
+
+          /*execute initMenu method*/
+
+          thisApp.initMenu();
+
+        });
+
       thisApp.initCart();
     },
   };
